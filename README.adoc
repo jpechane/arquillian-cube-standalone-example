@@ -1,0 +1,65 @@
+= Arquillian Cube Standalone
+:source-highlighter: highlight.js
+:test-sources: src/test/java
+:test-resources: src/test/resources
+
+Usually Arquillian is used to test enterprise applications that are deployed to an application server (or Servlet container like Tomcat).
+
+But you can use `Aquillian-Standalone` module which effectively skips the deployment phase, so you can use it in diffrent circumstances.
+In case of `Arquillian-Cube`, it can be used for writing integration tests of pieces of code that don't need to be deployed anywhere, but they require to connect to a service exposed via docker.
+
+One example could be writing a test for a client-library that connects to a SSH server.
+The integration test could boot up a docker image with an SSH server and some users already added.
+Then simply you can test against a real server that the client connects correctly.
+
+== Arquillian Cube dependencies
+
+You only need to add two dependencies to start using Arquillian Cube + Arquillian Standalone, but for this example we have added logger dependencies and a Java SSH client.
+
+[source, xml]
+.pom.xml
+----
+include::pom.xml[indent="0", tags="arq_dep"]
+----
+<1> Arquillian bom to have all versions aligned.
+<2> Arquillian JUnit standalone dependency. Required to avoid deployment.
+<3> Arquillian Cube dependency for docker integration.
+
+== Configuration
+
+Next step is to configure Arquillian Cube to start the SSHD image.
+This is done in `arquillian.xml` file which is located by default at `test-resources}` directory.
+
+[source, xml]
+.{test-resources}/arquillian.xml
+----
+include::{test-resources}/arquillian.xml[]
+----
+<1> Extension tag to docker extension.
+<2> Since I am using Docker-Machine I need to set the machine's name.
+<3> AutostartContainers is used for setting which container of definition should be started.
+<4> Finally the definition of the container that should be start.
+
+Notice that in current definition, we have set that we want to use a `Dockerfile` definition to build the image by setting `buildImage` element.
+Also it is important to notice that the the first element on`dockerContainers` property is the name of the container, which is used in `utoStartContainers` as well.
+
+Finally we need to create the `ockerfile` specified in the configuration at `{test-resources}`/sshd directory.
+
+[source]
+.{test-resources}/sshd/Dockerfile
+----
+include::{test-resources}/sshd/Dockerfile[]
+----
+
+== Test
+
+Finally we can write the test:
+
+[source, java]
+.{test-sources}/org/jenkinsci/sshd/SshdTest.java
+----
+include::{test-sources}/org/jenkinsci/sshd/SshdTest.java[indent="0", tags="test"]
+----
+<1> Test must be annotated with Arquillian runner.
+<2> This test is executed when the container is started and ready to serve petitions.
+<3> Now IP should be set manually, in next release the IP will be injected automatically.
