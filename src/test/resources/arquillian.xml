@@ -5,7 +5,9 @@
   http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
 <extension qualifier="docker"> <!--1-->
-    <property name="machineName">dev</property> <!--2-->
+    <property name="serverVersion">1.12</property>
+    <property name="serverUri">http://localhost:2375</property>
+    <property name="definitionFormat">CUBE</property>
     <property name="autoStartContainers">sshd</property> <!--3-->
     <property name="dockerContainers"> <!--4-->
         sshd:

@@ -46,13 +46,13 @@ import static org.junit.Assert.assertThat;
 
 // tag::test[]
 @RunWith(Arquillian.class) //<1>
-public class SshdTest {
+public class SshdTest extends Parent2 {
 
 
     @Test
     public void testSshConnection() throws IOException { //<2>
 
-        Shell shell = new SSH("192.168.99.100", 2222, "test", getPrivateKeyString()); //<3>
+        Shell shell = new SSH("localhost", 2222, "test", getPrivateKeyString()); //<3>
         String stdout = new Shell.Plain(shell).exec("echo 'Hello, world!'");
 
         assertThat(stdout.trim(), is("Hello, world!"));
